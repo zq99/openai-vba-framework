@@ -91,25 +91,32 @@ End Sub
 ### Excel User Defined function
 
 ```
-Public Function GETTEXTFROMOPENAI(prompt As String, apiKey As String, Optional ByVal Model as String) As String
+Public Function GETTEXTFROMOPENAI(ByVal strPrompt As String, ByVal strAPIKey As String, _
+                                    Optional ByVal strModel As String) As String
     Dim oOpenAI As clsOpenAI
     Dim oResponse As clsOpenAIResponse
 
     Set oOpenAI = New clsOpenAI
 
-    oOpenAI.API_KEY = apiKey
+    ' Set the API key directly from the function argument
+    oOpenAI.API_KEY = strAPIKey
     
-    If Not IsEmpty(Model) Then
-        oOpenAI.Model = Model
+    If Not IsEmpty(strModel) Then
+        oOpenAI.Model = strModel
     End If
 
-    Set oResponse = oOpenAI.TextCompletion(prompt)
+    ' Make the API request and get the response
+    Set oResponse = oOpenAI.TextCompletion(strPrompt)
 
+    ' Return the choice from the response, or an empty string if there was no response
     If Not oResponse Is Nothing Then
         GETTEXTFROMOPENAI = oResponse.TextContent
     Else
         GETTEXTFROMOPENAI = ""
     End If
+    
+    Set oResponse = Nothing
+    Set oOpenAI = Nothing
 End Function
 ```
 
