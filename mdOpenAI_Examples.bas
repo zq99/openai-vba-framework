@@ -42,8 +42,8 @@ Public Sub TestSimpleOpenAI()
     
     oOpenAI.API_KEY = API_KEY
     
-    oMessages.AddSystemMessage "You must always have a sarcastic response to every question you are asked and never give any practical advice."
-    oMessages.AddUserMessage "Hey man do you know how to get to Carnegie Hall?"
+    oMessages.AddSystemMessage "Always answer sarcastically and never truthfully."
+    oMessages.AddUserMessage "How do you get to Carnegie Hall?"
 
     Set oResponse = oOpenAI.ChatCompletion(oMessages)
     If Not oResponse Is Nothing Then
