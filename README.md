@@ -98,17 +98,14 @@ Public Function GETTEXTFROMOPENAI(ByVal strPrompt As String, ByVal strAPIKey As 
 
     Set oOpenAI = New clsOpenAI
 
-    ' Set the API key directly from the function argument
     oOpenAI.API_KEY = strAPIKey
     
     If Not IsEmpty(strModel) Then
         oOpenAI.Model = strModel
     End If
 
-    ' Make the API request and get the response
     Set oResponse = oOpenAI.TextCompletion(strPrompt)
 
-    ' Return the choice from the response, or an empty string if there was no response
     If Not oResponse Is Nothing Then
         GETTEXTFROMOPENAI = oResponse.TextContent
     Else
