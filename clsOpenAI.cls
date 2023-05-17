@@ -56,6 +56,8 @@ Private Const DEFAULT_TEXT_TOKENS_COUNT As Integer = 1024
 Private Const UNASSIGNED_VALUE As Integer = -1
 Private Const MESSAGE_INVALID_API_KEY As String = "An OpenAI API key is either invalid or has not been specified!"
 Private Const HTTP_STATUS_OK As Long = 200 ' OK
+Private Const HTTP_REQUEST_COMPLETED As Integer = 4
+
 
 Private Function IOpenAINameProvider_GetClassName() As String
     IOpenAINameProvider_GetClassName = "clsOpenAI"
@@ -142,6 +144,11 @@ On Error GoTo ERR_HANDLER:
         .SetRequestHeader "Authorization", "Bearer " & mstrAPI_KEY
         .send (strRequestJson)
     End With
+    
+    ' completed
+    Do While mobjHttpRequest.readyState <> HTTP_REQUEST_COMPLETED
+        DoEvents
+    Loop
     
     Log "Response code from OpenAI API is: " & mobjHttpRequest.Status
 
@@ -300,7 +307,7 @@ Public Function GetReadAPIKeyFromFolder(ByVal strfolderPath As String) As String
 'Purpose: Allows retrieval of an API KEY saved in an external file (possibly stored on a user access drive)
 
     Dim intFileNumber As Integer
-    Dim strApiKey As String
+    Dim strAPIKey As String
     Dim strFilePath As String
 
     strFilePath = strfolderPath & "\apikey.txt" ' Construct the full file path
@@ -311,13 +318,13 @@ Public Function GetReadAPIKeyFromFolder(ByVal strfolderPath As String) As String
     Open strFilePath For Input As intFileNumber
 
         ' Read the contents of the file into the variable.
-        Input #intFileNumber, strApiKey
+        Input #intFileNumber, strAPIKey
 
     ' Close the file.
     Close intFileNumber
 
     ' Return the API Key
-    GetReadAPIKeyFromFolder = strApiKey
+    GetReadAPIKeyFromFolder = strAPIKey
 End Function
 
 
