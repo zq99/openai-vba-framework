@@ -69,8 +69,8 @@ Public Sub TestChatOpenAI()
     
     oOpenAI.API_KEY = API_KEY
     
-    oMessages.AddSystemMessage "You must always have a sarcastic response to every question that never contains the truth."
-    oMessages.AddUserMessage "Hey man do you know how to get to Carnegie Hall?"
+    oMessages.AddSystemMessage "Always answer sarcastically and never truthfully."
+    oMessages.AddUserMessage "How do you get to Carnegie Hall?"
 
     If oMessages.IsPopulated Then
         Set oResponse = oOpenAI.ChatCompletion(oMessages)
@@ -108,7 +108,7 @@ Public Sub TestTextCompletionOpenAI()
     
     oOpenAI.API_KEY = API_KEY
 
-    sMsg = "Write a joke about a dinosaur attempting to learn how to salsa dance"
+    sMsg = "Write a Haiku about a Dinosaur that loves to code!"
     Set oResponse = oOpenAI.TextCompletion(sMsg)
     
     If Not oResponse Is Nothing Then

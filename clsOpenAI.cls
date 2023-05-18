@@ -89,7 +89,7 @@ End Property
 
 Public Property Let Temperature(ByVal value As Double)
     If (value < 0) Or (value > 1) Then
-        Call mobjLogger.LogCriticalMessage("Temperature setting must be between 0 and 1!", blnAddModuleName:=False)
+        Call mobjLogger.PrintCriticalMessage("Temperature setting must be between 0 and 1!", blnAddModuleName:=False)
     End If
     mobjRequest.Temperature = value
 End Property
@@ -180,7 +180,7 @@ EXIT_HERE:
     Exit Function
     
 ERR_HANDLER:
-    mobjLogger.LogVBAError Err
+    mobjLogger.PrintVBAError Err
     GoTo EXIT_HERE
 End Function
 
@@ -199,7 +199,7 @@ Public Function ChatCompletion(ByVal oMessages As clsOpenAIMessages) As clsOpenA
     Set ChatCompletion = Nothing
 
     If Not IsAPIKeyValid Then
-        mobjLogger.LogCriticalMessage MESSAGE_INVALID_API_KEY, True
+        mobjLogger.PrintCriticalMessage MESSAGE_INVALID_API_KEY, True
         Exit Function
     End If
 
@@ -230,7 +230,7 @@ Public Function TextCompletion(ByVal strPrompt As String) As clsOpenAIResponse
     Set TextCompletion = Nothing
 
     If Not IsAPIKeyValid Then
-        mobjLogger.LogCriticalMessage MESSAGE_INVALID_API_KEY, True
+        mobjLogger.PrintCriticalMessage MESSAGE_INVALID_API_KEY, True
         Exit Function
     End If
     
@@ -304,7 +304,7 @@ Public Sub ClearSettings()
 End Sub
 
 Public Function GetReadAPIKeyFromFolder(ByVal strfolderPath As String) As String
-'Purpose: Allows retrieval of an API KEY saved in an external file (possibly stored on a user access drive)
+'Purpose: Allows retrieval of an API KEY saved in an external file (possibly stored on a drive only the current user can access)
 
     Dim intFileNumber As Integer
     Dim strAPIKey As String

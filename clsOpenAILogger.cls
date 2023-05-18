@@ -95,7 +95,7 @@ Private Sub LogMessage(ByVal strMessage As String)
     End If
 End Sub
 
-Public Sub LogCriticalMessage(ByVal strMessage As String, Optional ByVal blnIsBorderRequired As Boolean = False, Optional ByVal strBorderCharacter As String = "*", Optional ByVal blnAddModuleName As Boolean = True, Optional ByVal strLabel As String = "WARNING")
+Public Sub PrintCriticalMessage(ByVal strMessage As String, Optional ByVal blnIsBorderRequired As Boolean = False, Optional ByVal strBorderCharacter As String = "*", Optional ByVal blnAddModuleName As Boolean = True, Optional ByVal strLabel As String = "WARNING")
 'Purpose: This method always outputs to the immediate window regardless of whether logging is set to False
 
     If Not mobjClass Is Nothing Then
@@ -120,7 +120,7 @@ Public Sub LogCriticalMessage(ByVal strMessage As String, Optional ByVal blnIsBo
 End Sub
 
 
-Public Sub LogVBAError(ByVal objErr As Error)
+Public Sub PrintVBAError(ByVal objErr As Error)
 'Purpose: This method always outputs to the immediate window regardless of whether logging is set to False
 
     If Not mobjClass Is Nothing Then
