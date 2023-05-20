@@ -45,6 +45,10 @@ Private mobjRequest As clsOpenAIRequest
 'Open AI defined constants
 Private Const API_ENDPOINT_CHAT As String = "https://api.openai.com/v1/chat/completions"
 Private Const API_ENDPOINT_COMPLETIONS As String = "https://api.openai.com/v1/completions"
+Private Const API_ENDPOINT_IMAGE_CREATION As String = "https://api.openai.com/v1/images/generations"
+
+Private Const DEFAULT_LOCAL_LOCATION As String = "C:\Users\Public\Downloads\"
+Private mstrFolderToSave As String
 
 'More models can be found here: https://platform.openai.com/docs/models/overview
 Private Const DEFAULT_CHAT_MODEL As String = "gpt-3.5-turbo"
@@ -102,6 +106,14 @@ Public Property Let PresencePenalty(ByVal value As Double)
     mobjRequest.PresencePenalty = value
 End Property
 
+Public Property Let FolderToSaveTo(ByVal value As String)
+    mstrFolderToSave = value
+End Property
+
+Public Property Get FolderToSaveTo() As String
+    FolderToSaveTo = mstrFolderToSave
+End Property
+
 
 Public Sub IsLogOutputRequired(ByVal value As Boolean)
 'Purpose: Calling routines can switch off messages in this framework from appearing in the Immediate window
@@ -122,7 +134,7 @@ Public Sub Log(ByVal strMessage As String)
 End Sub
 
 
-Private Function GetResponseFromAPI(ByVal strRequestJson As String, ByVal strEndPoint As String) As clsOpenAIResponse
+Private Function GetResponseFromAPI(ByVal strRequestJson As String, ByVal strEndPoint As String, Optional ByVal strLocalPath As String = DEFAULT_LOCAL_LOCATION) As clsOpenAIResponse
 'Purpose: This handles the request to OpenAI's API URL
 
     Dim strResponseJson As String
@@ -142,37 +154,43 @@ On Error GoTo ERR_HANDLER:
         .Open "POST", strEndPoint, False
         .SetRequestHeader "Content-Type", "application/json"
         .SetRequestHeader "Authorization", "Bearer " & mstrAPI_KEY
-        .send (strRequestJson)
+        .Send (strRequestJson)
     End With
     
-    ' completed
+    ' unblock other processes if still querying OpenAI
     Do While mobjHttpRequest.readyState <> HTTP_REQUEST_COMPLETED
         DoEvents
     Loop
-    
-    Log "Response code from OpenAI API is: " & mobjHttpRequest.Status
 
     If mobjHttpRequest.Status = HTTP_STATUS_OK Then
     
         'get the json result from the successful request
-        strResponseJson = Trim(mobjHttpRequest.responseText)
+        strResponseJson = Trim(mobjHttpRequest.ResponseText)
         Log strResponseJson
-        Set oResponse = New clsOpenAIResponse
         
         'format the json result according to which api endpoint used
         If strEndPoint = API_ENDPOINT_CHAT Then
             
             'ChatGPT and GPT4
+            Set oResponse = New clsOpenAIResponse
             oResponse.ParseChatJSON (strResponseJson)
             Set GetResponseFromAPI = oResponse
         
         ElseIf strEndPoint = API_ENDPOINT_COMPLETIONS Then
             
             'GPT3 and earlier
+            Set oResponse = New clsOpenAIResponse
             oResponse.ParseTextCompletionJSON (strResponseJson)
             Set GetResponseFromAPI = oResponse
         
+        ElseIf strEndPoint = API_ENDPOINT_IMAGE_CREATION Then
+        
+            'DALL-E image generator
+            Set GetResponseFromAPI = GetResponseObjectForImageParse(strResponseJson)
+        
         End If
+    Else
+        mobjLogger.PrintCriticalMessage ("Failed to retrieve data from OpenAI. Response code is " & mobjHttpRequest.Status)
     End If
     
 EXIT_HERE:
@@ -182,6 +200,56 @@ EXIT_HERE:
 ERR_HANDLER:
     mobjLogger.PrintVBAError Err
     GoTo EXIT_HERE
+End Function
+
+
+Private Function GetResponseObjectForImageParse(ByVal strResponseJson As String)
+    
+    Set GetResponseObjectForImageParse = Nothing
+    
+    Dim oResponse As clsOpenAIResponse
+    Dim strImageUrl As String
+    
+    Set oResponse = New clsOpenAIResponse
+    strImageUrl = oResponse.GetImageURLFromImageCreationJSON(strResponseJson)
+    
+    If Len(strImageUrl) > 0 Then
+
+        Dim strFileName As String
+        strFileName = oResponse.GetFileNameFromImageURL(strImageUrl)
+        
+        If Len(strFileName) > 0 Then
+        
+            Dim strFullName As String
+            strFullName = mstrFolderToSave & strFileName
+            
+            If Not mobjHttpRequest Is Nothing Then
+            
+                mobjHttpRequest.Open "GET", strImageUrl, False
+                mobjHttpRequest.Send
+                
+                'convert the byte array to a saved image file
+
+                Dim objStream As Object
+                Set objStream = CreateObject("ADODB.Stream")
+                
+                If Not objStream Is Nothing Then
+                    objStream.Open
+                    objStream.Type = 1
+                    objStream.write mobjHttpRequest.ResponseBody
+                    objStream.SaveToFile strFullName
+                    objStream.Close
+                    Set objStream = Nothing
+                    
+                    If Len(Dir(strFullName)) > 0 Then
+                       oResponse.SavedLocalFile = strFullName
+                    End If
+                    Set GetResponseObjectForImageParse = oResponse
+                End If
+            End If
+        End If
+    End If
+    Set oResponse = Nothing
 End Function
 
 
@@ -264,6 +332,8 @@ Private Sub Class_Initialize()
     mobjLogger.IsMessageRequired = False
     mobjLogger.SetClass Me
     
+    mstrFolderToSave = DEFAULT_LOCAL_LOCATION
+    
     mstrAPI_KEY = Empty
 
 End Sub
@@ -289,6 +359,8 @@ Private Function GetDefaultRequestSettings() As clsOpenAIRequest
         .Temperature = 0.5
         .FrequencyPenalty = 0
         .PresencePenalty = 0
+        .ImageHeight = 256
+        .ImageWidth = 256
     End With
     Set GetDefaultRequestSettings = oRequest
     
@@ -302,6 +374,7 @@ Public Sub ClearSettings()
     Set mobjRequest = GetDefaultRequestSettings
 
 End Sub
+
 
 Public Function GetReadAPIKeyFromFolder(ByVal strfolderPath As String) As String
 'Purpose: Allows retrieval of an API KEY saved in an external file (possibly stored on a drive only the current user can access)
@@ -327,4 +400,28 @@ Public Function GetReadAPIKeyFromFolder(ByVal strfolderPath As String) As String
     GetReadAPIKeyFromFolder = strAPIKey
 End Function
 
+
+Public Function CreateImageFromText(ByVal strPrompt As String, ByVal lngWidth As Long, ByVal lngHeight As Long) As clsOpenAIResponse
+'Purpose: This is for OpenAI's image creation
+
+    Set CreateImageFromText = Nothing
+
+    If Not IsAPIKeyValid Then
+        mobjLogger.PrintCriticalMessage MESSAGE_INVALID_API_KEY, True
+        Exit Function
+    End If
+    
+    If mobjHttpRequest Is Nothing Or strPrompt = Empty Then
+        Exit Function
+    End If
+    
+    mobjRequest.prompt = strPrompt
+    mobjRequest.ImageHeight = lngHeight
+    mobjRequest.ImageWidth = lngWidth
+    
+    Log mobjRequest.GetDalleImageSendToAPIJsonString
+    
+    Set CreateImageFromText = GetResponseFromAPI(mobjRequest.GetDalleImageSendToAPIJsonString, API_ENDPOINT_IMAGE_CREATION, DEFAULT_LOCAL_LOCATION)
+
+End Function
 

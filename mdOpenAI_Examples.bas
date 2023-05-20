@@ -2,7 +2,7 @@ Attribute VB_Name = "mdOpenAI_Examples"
 '-----------------------------------------------------------------------------
 ' Project: OpenAI VBA Framework
 ' Module:  mdOpenAI_Examples
-' Description: Tests all the framework is retrieving data correctly
+' Description: Some examples of how to use the framework
 '
 ' Author: Zaid Qureshi
 ' GitHub: https://github.com/zq99
@@ -180,3 +180,24 @@ Public Function GETTEXTFROMOPENAI(ByVal strPrompt As String, ByVal strAPIKey As 
     Set oOpenAI = Nothing
 End Function
 
+
+
+Public Sub TestDalleOpenAI()
+
+    Dim oOpenAI As clsOpenAI
+    Dim oResponse As clsOpenAIResponse
+    
+    Set oOpenAI = New clsOpenAI
+    
+    oOpenAI.API_KEY = API_KEY
+    
+    Set oResponse = oOpenAI.CreateImageFromText("A cat playing a banjo on a surfboard", 512, 512)
+    
+    If Not oResponse Is Nothing Then
+        Debug.Print ("The picture has been saved to: " & oResponse.SavedLocalFile)
+    End If
+    
+    Set oResponse = Nothing
+    Set oOpenAI = Nothing
+
+End Sub

@@ -45,22 +45,29 @@ Private mdblTemperature As Double
 Private mdblFrequencyPenalty As Double
 Private mdlPresencePenalty As Double
 Private mstrPrompt As String
+Private mlngImageWidth As Long
+Private mlngImageHeight As Long
 
-Private Sub Class_Initialize()
-    Set mobjMessages = New clsOpenAIMessages
-End Sub
-
-Private Sub Class_Terminate()
-    Set mobjMessages = Nothing
-End Sub
 
 Private Function IOpenAINameProvider_GetClassName() As String
     IOpenAINameProvider_GetClassName = "clsOpenAIRequest"
 End Function
 
+
 Private Function IOpenAINameProvider_ToString() As String
     IOpenAINameProvider_ToString = "chat json=" & Me.GetChatSendToAPIJsonString & " | " & "text json=" & Me.GetTextCompletionSendToAPIJsonString
 End Function
+
+
+Private Sub Class_Initialize()
+    Set mobjMessages = New clsOpenAIMessages
+End Sub
+
+
+Private Sub Class_Terminate()
+    Set mobjMessages = Nothing
+End Sub
+
 
 Public Property Let prompt(ByVal value As String)
     mstrPrompt = value
@@ -102,12 +109,40 @@ Public Property Let PresencePenalty(ByVal value As Double)
     mdlPresencePenalty = value
 End Property
 
+Public Property Get ImageHeight() As Long
+    ImageHeight = mlngImageHeight
+End Property
+
+Public Property Let ImageHeight(ByVal value As Long)
+    mlngImageHeight = value
+End Property
+
+Public Property Get ImageWidth() As Long
+    ImageWidth = mlngImageHeight
+End Property
+
+Public Property Let ImageWidth(ByVal value As Long)
+    mlngImageWidth = value
+End Property
+
+
 Public Function GetChatSendToAPIJsonString() As String
     GetChatSendToAPIJsonString = "{""model"": """ & mstrModel & """, " & mobjMessages.GetAllMessages & ", ""max_tokens"": " & mlngMaxTokens & ", ""top_p"": " & mdblTopP & ", ""temperature"": " & mdblTemperature & ", ""frequency_penalty"": " & mdblFrequencyPenalty & ", ""presence_penalty"": " & mdlPresencePenalty & "}"
 End Function
+
 
 Public Function GetTextCompletionSendToAPIJsonString() As String
     GetTextCompletionSendToAPIJsonString = "{""model"": """ & mstrModel & """, ""prompt"": """ & mstrPrompt & """, ""max_tokens"": " & mlngMaxTokens & ", ""temperature"": " & mdblTemperature & "}"
 End Function
 
 
+Public Function GetDalleImageSendToAPIJsonString() As String
+    Dim strImageSize As String
+    strImageSize = Me.GetImageDimensionLabel()
+    GetDalleImageSendToAPIJsonString = "{""prompt"": """ & mstrPrompt & """, ""size"": " & strImageSize & "}"
+End Function
+
+
+Public Function GetImageDimensionLabel() As String
+    GetImageDimensionLabel = Chr(34) & CStr(mlngImageWidth) & "x" & CStr(mlngImageHeight) & Chr(34)
+End Function

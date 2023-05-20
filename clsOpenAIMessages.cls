@@ -39,6 +39,7 @@ Implements IOpenAINameProvider
 
 Private mcollMessages As Collection
 
+
 Private Function IOpenAINameProvider_GetClassName() As String
     IOpenAINameProvider_GetClassName = "clsOpenAIMessages"
 End Function
@@ -47,23 +48,28 @@ Private Function IOpenAINameProvider_ToString() As String
     IOpenAINameProvider_ToString = GetAllMessages
 End Function
 
+
 Private Sub Class_Initialize()
     Set mcollMessages = New Collection
 End Sub
+
 
 Private Sub Class_Terminate()
     Set mcollMessages = Nothing
 End Sub
 
+
 Public Sub AddMessage(ByVal objMsg As clsOpenAIMessage)
     mcollMessages.Add objMsg
 End Sub
+
 
 Public Sub ClearMessages()
     If Not mcollMessages Is Nothing Then
         mcollMessages.Clear
     End If
 End Sub
+
 
 Public Function GetAllMessages() As String
 'Purpose: This builds a string of all messages that will be sent to OpenAI API
@@ -95,6 +101,7 @@ Public Function GetAllMessages() As String
     
 End Function
 
+
 Private Function GetMessageObject(ByVal strKeyName As String, ByVal strKey As String, ByVal strValueName As String, ByVal strValue As String) As clsOpenAIMessage
 'Purpose: Helper routine to construct known message object types
     
@@ -108,21 +115,26 @@ Private Function GetMessageObject(ByVal strKeyName As String, ByVal strKey As St
 
 End Function
 
+
 Public Sub AddUserMessage(ByVal strContent As String)
     Call Me.AddMessage(GetMessageObject("role", "user", "content", strContent))
 End Sub
+
 
 Public Sub AddSystemMessage(ByVal strContent As String)
     Call Me.AddMessage(GetMessageObject("role", "system", "content", strContent))
 End Sub
 
+
 Public Sub AddAssistantMessage(ByVal strContent As String)
     Call Me.AddMessage(GetMessageObject("role", "assistant", "content", strContent))
 End Sub
 
+
 Public Sub AddCustomMessage(ByVal strKeyName As String, ByVal strKeyValue As String, ByVal strValueName As String, ByVal strValue As String)
     Call Me.AddMessage(GetMessageObject(strKeyName, strKeyValue, strValueName, strValue))
 End Sub
+
 
 Public Function GetTotal() As Integer
     If Not mcollMessages Is Nothing Then

@@ -47,7 +47,9 @@ Public Sub TestOpenAI()
     oOpenAI.API_KEY = API_KEY
     oOpenAI.Temperature = 0
     
-    oOpenAI.Log "(1) Simple chat test"
+    '*********************************************
+    '(1) Simple chat test
+    '*********************************************
     
     oMessages.AddSystemMessage "Every answer should only contain alphanumeric characters, and every letter should be capitalized"
     oMessages.AddUserMessage "What is the capital of France?"
@@ -63,7 +65,9 @@ Public Sub TestOpenAI()
     oOpenAI.Log oResponse.MessageContent
     oOpenAI.Log oResponse.MessageRole
     
-    oOpenAI.Log "(2) Simple chat test with temperature change"
+    '*********************************************
+    '(2) Simple chat test with temperature change
+    '*********************************************
 
     oMessages.AddUserMessage "write a string of digits in order up to 9"
 
@@ -74,7 +78,9 @@ Public Sub TestOpenAI()
     Debug.Assert oResponse.MessageContent = "123456789"
     Debug.Assert oResponse.MessageRole = "assistant"
     
+    '*********************************************
     '(3) Text completion test
+    '*********************************************
     
     Dim strMsg As String
     
@@ -88,6 +94,16 @@ Public Sub TestOpenAI()
     Debug.Assert Len(oResponse.TextContent) > 0
     oOpenAI.Log (oResponse.TextContent)
     
+    '*********************************************
+    '(4) Image creation from prompt test
+    '*********************************************
+    
+    oOpenAI.ClearSettings
+    Set oResponse = oOpenAI.CreateImageFromText("A cat playing a banjo on a surfboard", 256, 256)
+    
+    Debug.Assert Not oResponse Is Nothing
+    Debug.Assert Len(oResponse.SavedLocalFile) > 0
+    Debug.Assert Len(Dir(oResponse.SavedLocalFile)) > 0
     
     Set oResponse = Nothing
     Set oOpenAI = Nothing

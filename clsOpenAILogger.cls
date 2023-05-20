@@ -40,6 +40,7 @@ Private mobjClass As IOpenAINameProvider
 
 Private mblnIsMessageRequired As Boolean
 
+
 Private Function IOpenAINameProvider_GetClassName() As String
     IOpenAINameProvider_GetClassName = "clsOpenAILogger"
 End Function
@@ -64,6 +65,7 @@ Public Sub SetClass(ByVal Obj As IOpenAINameProvider)
     Set mobjClass = Obj
 End Sub
 
+
 Public Sub PrintMessage(ParamArray vntMessage() As Variant)
 ' Purpose: Takes in an open ended list of string variables and appends then together as a message to
 '          output to the immediate window
@@ -85,6 +87,7 @@ Public Sub PrintMessage(ParamArray vntMessage() As Variant)
 
 End Sub
 
+
 Private Sub LogMessage(ByVal strMessage As String)
 'Purpose: The main logging routine for messages, which can be suppressed by calling routines
 
@@ -94,6 +97,7 @@ Private Sub LogMessage(ByVal strMessage As String)
         End If
     End If
 End Sub
+
 
 Public Sub PrintCriticalMessage(ByVal strMessage As String, Optional ByVal blnIsBorderRequired As Boolean = False, Optional ByVal strBorderCharacter As String = "*", Optional ByVal blnAddModuleName As Boolean = True, Optional ByVal strLabel As String = "WARNING")
 'Purpose: This method always outputs to the immediate window regardless of whether logging is set to False
@@ -120,7 +124,7 @@ Public Sub PrintCriticalMessage(ByVal strMessage As String, Optional ByVal blnIs
 End Sub
 
 
-Public Sub PrintVBAError(ByVal objErr As Error)
+Public Sub PrintVBAError(ByVal objErr As ErrObject)
 'Purpose: This method always outputs to the immediate window regardless of whether logging is set to False
 
     If Not mobjClass Is Nothing Then
@@ -133,6 +137,7 @@ Public Sub PrintVBAError(ByVal objErr As Error)
     End If
 
 End Sub
+
 
 Private Function fncGetDateTimeStamp() As String
 'Purpose: All logged messages are outputted with a time stamp unless caling functions suppress this

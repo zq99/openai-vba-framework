@@ -39,8 +39,8 @@ Implements IOpenAINameProvider
 
 Private mstrRole As String
 Private mstrContent As String
-
 Private mcollMessageParts As Collection
+
 
 Private Function IOpenAINameProvider_GetClassName() As String
     IOpenAINameProvider_GetClassName = "clsOpenAIMessage"
@@ -50,9 +50,11 @@ Private Function IOpenAINameProvider_ToString() As String
     IOpenAINameProvider_ToString = GetMessageContentString()
 End Function
 
+
 Private Sub Class_Initialize()
     Set mcollMessageParts = New Collection
 End Sub
+
 
 Private Sub Class_Terminate()
     Set mcollMessageParts = Nothing
