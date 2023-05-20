@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/zq99/openai-vba-framework/blob/main/LICENSE)
 
-OpenAI-VBA-Framework is a toolkit for developers looking to create applications in VBA that interact with OpenAI's large language models such as GPT-4, ChatGPT and DALL-E. This framework provides a suite of classes to facilitate smooth integration with OpenAI's API.
+OpenAI-VBA-Framework is an independent toolkit for developers to build VBA applications with OpenAI's language models like GPT-4, ChatGPT, and DALL-E. It offers a suite of classes for easy integration with OpenAI's API. Please note, this project is not officially associated with or endorsed by OpenAI.
 
 ## Main Classes
 1. `clsOpenAI` - Main class to interact with OpenAI
