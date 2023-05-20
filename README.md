@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/zq99/openai-vba-framework/blob/main/LICENSE)
 
-OpenAI-VBA-Framework is a toolkit for developers looking to create applications in VBA that interact with OpenAI's large language models such as GPT-4 and ChatGPT. This framework provides a suite of classes to facilitate smooth integration with OpenAI's API.
+OpenAI-VBA-Framework is a toolkit for developers looking to create applications in VBA that interact with OpenAI's large language models such as GPT-4, ChatGPT and DALL-E. This framework provides a suite of classes to facilitate smooth integration with OpenAI's API.
 
 ## Main Classes
 1. `clsOpenAI` - Main class to interact with OpenAI
@@ -117,11 +117,35 @@ Public Function GETTEXTFROMOPENAI(ByVal strPrompt As String, ByVal strAPIKey As 
 End Function
 ```
 
+### DALL-E Image Creation
+
+```
+Public Sub TestDalleOpenAI()
+
+    Dim oOpenAI As clsOpenAI
+    Dim oResponse As clsOpenAIResponse
+    
+    Set oOpenAI = New clsOpenAI
+    
+    oOpenAI.API_KEY = API_KEY
+    
+    Set oResponse = oOpenAI.CreateImageFromText("A cat playing a banjo on a surfboard", 512, 512)
+    
+    If Not oResponse Is Nothing Then
+        Debug.Print ("The picture has been saved to: " & oResponse.SavedLocalFile)
+    End If
+    
+    Set oResponse = Nothing
+    Set oOpenAI = Nothing
+
+End Sub
+```
+
 ## Configuration
 
 You can customize the OpenAI-VBA-Framework by adjusting properties in the `clsOpenAI` class:
 
-```vba
+```
 ' Specify the model
 oOpenAI.Model = "gpt-3.5-turbo"
 
@@ -149,6 +173,15 @@ oOpenAI.ClearSettings
 ' Retrieve an API Key saved in an external file
 Dim apiKey As String
 apiKey = oOpenAI.GetReadAPIKeyFromFolder("<FolderPath>")
+```
+
+## Troubleshooting
+
+You can check the status of the OpenAI API [here](https://status.openai.com/).
+
+For coding issues, use the following line, to go through the code.
+```
+oOpenAI.IsLogOutputRequired True
 ```
 
 ## Contributing
