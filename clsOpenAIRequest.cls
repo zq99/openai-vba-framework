@@ -48,6 +48,12 @@ Private mstrPrompt As String
 Private mlngImageWidth As Long
 Private mlngImageHeight As Long
 
+'Resolve, Connect, Send and Receive
+Private mlngTimeoutResolve As Long
+Private mlngTimeoutConnect As Long
+Private mlngTimeoutSend As Long
+Private mlngTimeoutReceive As Long
+
 
 Private Function IOpenAINameProvider_GetClassName() As String
     IOpenAINameProvider_GetClassName = "clsOpenAIRequest"
@@ -123,6 +129,38 @@ End Property
 
 Public Property Let ImageWidth(ByVal value As Long)
     mlngImageWidth = value
+End Property
+
+Public Property Let TimeoutResolve(ByVal value As Long)
+    mlngTimeoutResolve = value
+End Property
+
+Public Property Get TimeoutResolve() As Long
+    TimeoutResolve = mlngTimeoutResolve
+End Property
+
+Public Property Let TimeoutConnect(ByVal value As Long)
+    mlngTimeoutConnect = value
+End Property
+
+Public Property Get TimeoutConnect() As Long
+    TimeoutConnect = mlngTimeoutConnect
+End Property
+
+Public Property Let TimeoutSend(ByVal value As Long)
+    mlngTimeoutSend = value
+End Property
+
+Public Property Get TimeoutSend() As Long
+    TimeoutSend = mlngTimeoutSend
+End Property
+
+Public Property Let TimeoutReceive(ByVal value As Long)
+    mlngTimeoutReceive = value
+End Property
+
+Public Property Get TimeoutReceive() As Long
+    TimeoutReceive = mlngTimeoutReceive
 End Property
 
 

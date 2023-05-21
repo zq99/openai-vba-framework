@@ -42,7 +42,7 @@ Private mobjHttpRequest As Object
 Private mobjLogger As clsOpenAILogger
 Private mobjRequest As clsOpenAIRequest
 
-'Open AI defined constants
+'OpenAI API Endpoints
 Private Const API_ENDPOINT_CHAT As String = "https://api.openai.com/v1/chat/completions"
 Private Const API_ENDPOINT_COMPLETIONS As String = "https://api.openai.com/v1/completions"
 Private Const API_ENDPOINT_IMAGE_CREATION As String = "https://api.openai.com/v1/images/generations"
@@ -57,11 +57,17 @@ Private Const DEFAULT_TEXT_COMPLETION_MODEL As String = "text-davinci-003"
 Private Const DEFAULT_CHAT_TOKENS_COUNT As Integer = 512
 Private Const DEFAULT_TEXT_TOKENS_COUNT As Integer = 1024
 
+'Project constants
 Private Const UNASSIGNED_VALUE As Integer = -1
 Private Const MESSAGE_INVALID_API_KEY As String = "An OpenAI API key is either invalid or has not been specified!"
 Private Const HTTP_STATUS_OK As Long = 200 ' OK
 Private Const HTTP_REQUEST_COMPLETED As Integer = 4
 
+'This allows configuration of different HHTP Requests
+Private Const MSXML_XML As String = "MSXML2.XMLHTTP"
+Private Const MSXML_SERVER_XML As String = "MSXML2.ServerXMLHTTP"
+Private Const MSXML_DEFAULT As String = MSXML_XML
+Private mstrMSXMLType As String
 
 Private Function IOpenAINameProvider_GetClassName() As String
     IOpenAINameProvider_GetClassName = "clsOpenAI"
@@ -77,6 +83,31 @@ End Property
 
 Public Property Get API_KEY() As String
     API_KEY = mstrAPI_KEY
+End Property
+
+Public Property Let MSXMLType(ByVal value As String)
+'This allows calling proceedures to change the default type of XML HTTP Request
+    
+    'These are the only values allowed for this
+    If (value <> Me.MSXML_SERVER_XML_VALUE) And (value <> Me.MSXML_XML_VALUE) Then
+        Call mobjLogger.PrintCriticalMessage("Invalid MSXML type specified!")
+    Else
+        mstrMSXMLType = value
+    End If
+End Property
+
+Public Property Get MSXMLType() As String
+    MSXMLType = mstrMSXMLType
+End Property
+
+'This method allows for the MSXML_XML constant to be accessible outside of the class
+Public Property Get MSXML_XML_VALUE() As String
+    MSXML_XML_VALUE = MSXML_XML
+End Property
+
+'This method allows for the MSXML_SERVER_XML constant to be accessible outside of the class
+Public Property Get MSXML_SERVER_XML_VALUE() As String
+    MSXML_SERVER_XML_VALUE = MSXML_SERVER_XML
 End Property
 
 Public Property Let Model(ByVal value As String)
@@ -145,16 +176,21 @@ On Error GoTo ERR_HANDLER:
     'default return value
     Set GetResponseFromAPI = Nothing
     
-    If mobjHttpRequest Is Nothing Then
-        GoTo EXIT_HERE
-    End If
+    Set mobjHttpRequest = CreateObject(mstrMSXMLType)
     
     'talk to OpenAI
     With mobjHttpRequest
+        
+        If mstrMSXMLType = MSXML_SERVER_XML Then
+            .setTimeouts mobjRequest.TimeoutResolve, mobjRequest.TimeoutConnect, _
+                         mobjRequest.TimeoutSend, mobjRequest.TimeoutReceive
+        End If
+        
         .Open "POST", strEndPoint, False
         .SetRequestHeader "Content-Type", "application/json"
         .SetRequestHeader "Authorization", "Bearer " & mstrAPI_KEY
         .Send (strRequestJson)
+    
     End With
     
     ' unblock other processes if still querying OpenAI
@@ -271,7 +307,7 @@ Public Function ChatCompletion(ByVal oMessages As clsOpenAIMessages) As clsOpenA
         Exit Function
     End If
 
-    If mobjHttpRequest Is Nothing Or oMessages Is Nothing Then
+    If oMessages Is Nothing Then
         Exit Function
     End If
     
@@ -302,7 +338,7 @@ Public Function TextCompletion(ByVal strPrompt As String) As clsOpenAIResponse
         Exit Function
     End If
     
-    If mobjHttpRequest Is Nothing Or strPrompt = Empty Then
+    If strPrompt = Empty Then
         Exit Function
     End If
     
@@ -325,7 +361,7 @@ End Function
 
 Private Sub Class_Initialize()
     
-    Set mobjHttpRequest = CreateObject("MSXML2.XMLHTTP")
+    mstrMSXMLType = MSXML_DEFAULT
     Set mobjRequest = GetDefaultRequestSettings
 
     Set mobjLogger = New clsOpenAILogger
@@ -361,11 +397,25 @@ Private Function GetDefaultRequestSettings() As clsOpenAIRequest
         .PresencePenalty = 0
         .ImageHeight = 256
         .ImageWidth = 256
+        .TimeoutConnect = 30000
+        .TimeoutReceive = 30000
+        .TimeoutResolve = 30000
+        .TimeoutSend = 60000
     End With
     Set GetDefaultRequestSettings = oRequest
     
     Set oRequest = Nothing
 End Function
+
+
+Public Sub SetTimeOutDefaults(ByVal lngConnect As Long, ByVal lngReceive As Long, ByVal lngResolve As Long, ByVal lngSend As Long)
+    If Not mobjRequest Is Nothing Then
+        mobjRequest.TimeoutConnect = lngConnect
+        mobjRequest.TimeoutReceive = lngReceive
+        mobjRequest.TimeoutResolve = lngResolve
+        mobjRequest.TimeoutSend = lngSend
+    End If
+End Sub
 
 
 Public Sub ClearSettings()
@@ -411,7 +461,7 @@ Public Function CreateImageFromText(ByVal strPrompt As String, ByVal lngWidth As
         Exit Function
     End If
     
-    If mobjHttpRequest Is Nothing Or strPrompt = Empty Then
+    If strPrompt = Empty Then
         Exit Function
     End If
     

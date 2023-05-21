@@ -108,7 +108,7 @@ Public Sub TestTextCompletionOpenAI()
     
     oOpenAI.API_KEY = API_KEY
 
-    sMsg = "Write a Haiku about a Dinosaur that loves to code!"
+    sMsg = "Write a Haiku about a dinosaur that loves to code!"
     Set oResponse = oOpenAI.TextCompletion(sMsg)
     
     If Not oResponse Is Nothing Then
@@ -140,7 +140,7 @@ Public Sub TestTextCompletionSimpleOpenAI()
     
     oOpenAI.API_KEY = API_KEY
 
-    Set oResponse = oOpenAI.TextCompletion("Write a Haiku about a Dinosaur that loves to code!")
+    Set oResponse = oOpenAI.TextCompletion("Write a Haiku about a dinosaur that loves to code!")
     
     If Not oResponse Is Nothing Then
         Debug.Print (oResponse.TextContent)
