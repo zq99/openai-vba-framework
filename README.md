@@ -88,35 +88,6 @@ Public Sub TestTextCompletionSimpleOpenAI()
 End Sub
 ```
 
-### Excel User Defined function
-
-```
-Public Function GETTEXTFROMOPENAI(ByVal strPrompt As String, ByVal strAPIKey As String, _
-                                    Optional ByVal strModel As String) As String
-    Dim oOpenAI As clsOpenAI
-    Dim oResponse As clsOpenAIResponse
-
-    Set oOpenAI = New clsOpenAI
-
-    oOpenAI.API_KEY = strAPIKey
-    
-    If Not IsEmpty(strModel) Then
-        oOpenAI.Model = strModel
-    End If
-
-    Set oResponse = oOpenAI.TextCompletion(strPrompt)
-
-    If Not oResponse Is Nothing Then
-        GETTEXTFROMOPENAI = oResponse.TextContent
-    Else
-        GETTEXTFROMOPENAI = ""
-    End If
-    
-    Set oResponse = Nothing
-    Set oOpenAI = Nothing
-End Function
-```
-
 ### DALL-E Image Creation
 
 ```
