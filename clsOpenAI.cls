@@ -63,7 +63,7 @@ Private Const MESSAGE_INVALID_API_KEY As String = "An OpenAI API key is either i
 Private Const HTTP_STATUS_OK As Long = 200 ' OK
 Private Const HTTP_REQUEST_COMPLETED As Integer = 4
 
-'This allows configuration of different HHTP Requests
+'This allows configuration of different HTTP Requests
 Private Const MSXML_XML As String = "MSXML2.XMLHTTP"
 Private Const MSXML_SERVER_XML As String = "MSXML2.ServerXMLHTTP"
 Private Const MSXML_DEFAULT As String = MSXML_XML
