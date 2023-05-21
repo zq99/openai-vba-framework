@@ -98,7 +98,7 @@ Public Sub TestDalleOpenAI()
     
     Set oOpenAI = New clsOpenAI
     
-    oOpenAI.API_KEY = API_KEY
+    oOpenAI.API_KEY = "<API_KEY>"
     
     Set oResponse = oOpenAI.CreateImageFromText("A cat playing a banjo on a surfboard", 512, 512)
     
