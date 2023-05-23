@@ -30,7 +30,6 @@ Attribute VB_Exposed = False
 ' This work is licensed under the MIT License. The full license text
 ' can be found in the LICENSE file in the root of this repository.
 '
-' Copyright (c) 2023 Zaid Qureshi
 '-----------------------------------------------------------------------------
 
 Option Explicit
