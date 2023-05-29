@@ -7,7 +7,7 @@ Attribute VB_Name = "mdOpenAI_TESTS"
 ' Author: Zaid Qureshi
 ' GitHub: https://github.com/zq99
 '
-' Modules in the Framework:
+' Classes / Modules in the Framework:
 ' - clsOpenAI
 ' - clsOpenAILogger
 ' - clsOpenAIMessage
@@ -26,12 +26,6 @@ Attribute VB_Name = "mdOpenAI_TESTS"
 
 Option Explicit
 
-#If VBA7 Then
-    Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As LongPtr)
-#Else
-    Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
-#End If
-
 '******************************************************
 ' GET YOUR API KEY: https://openai.com/api/
 Public Const API_KEY As String = "<API_KEY>"
@@ -48,13 +42,15 @@ Public Sub RunAllTests()
     
     oOpenAI.IsLogOutputRequired True
     oOpenAI.API_KEY = API_KEY
+    
+    Debug.Assert oOpenAI.API_KEY = API_KEY
+    Debug.Assert oOpenAI.CallsToAPICount = 0
 
     ' Assign all posssible MSXML types
     arrMSXMLTypes(1) = Empty
     arrMSXMLTypes(2) = oOpenAI.MSXML_XML_VALUE
     arrMSXMLTypes(3) = oOpenAI.MSXML_SERVER_XML_VALUE
 
-    ' Declare a variable for the loop index
     Dim i As Integer
 
     ' Loop through each item in the array
@@ -62,9 +58,10 @@ Public Sub RunAllTests()
         DoEvents
         oOpenAI.Log arrMSXMLTypes(i)
         Call TestOpenAI(oOpenAI, arrMSXMLTypes(i))
-        Sleep 1000
+        oOpenAI.Pause
     Next i
-
+    
+    Debug.Assert oOpenAI.CallsToAPICount > 0
     Set oOpenAI = Nothing
 
 End Sub
@@ -76,42 +73,71 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
     Dim oResponse As clsOpenAIResponse
         
     If strRequestXMLType <> Empty Then
-        oOpenAI.MSXMLType = oOpenAI.MSXML_SERVER_XML_VALUE
+        oOpenAI.MSXMLType = strRequestXMLType
+        Debug.Assert oOpenAI.MSXMLType = strRequestXMLType
     End If
     
-    'All output to sent to immediate window
+    'Test temperature can be changed
+    oOpenAI.Temperature = 0.9
+    Debug.Assert oOpenAI.Temperature = 0.9
+    
+    'Set least amount of variation for testing
     oOpenAI.Temperature = 0
+    Debug.Assert oOpenAI.Temperature = 0
     
     '*********************************************
     '(1) Simple chat test
     '*********************************************
     
-    oMessages.AddSystemMessage "Every answer should only contain alphanumeric characters, and every letter should be capitalized"
-    oMessages.AddUserMessage "What is the capital of France?"
-
-    Set oResponse = oOpenAI.ChatCompletion(oMessages)
+    'Test with different models
+    Dim arrModels(1 To 2) As String
+    Dim i As Integer
     
-    Debug.Assert Not oResponse Is Nothing
-    Debug.Assert Len(oResponse.MessageContent) > 0
-    Debug.Assert oResponse.MessageContent = "PARIS"
-    Debug.Assert oResponse.MessageRole = "assistant"
+    arrModels(1) = Empty
+    arrModels(2) = "gpt-4"
     
-    oOpenAI.Log oMessages.GetAllMessages
-    oOpenAI.Log oResponse.MessageContent
-    oOpenAI.Log oResponse.MessageRole
+    For i = LBound(arrModels) To UBound(arrModels)
+    
+        DoEvents
+    
+        If arrModels(i) <> Empty Then
+            oOpenAI.Model = arrModels(i)
+            Debug.Assert oOpenAI.Model = arrModels(i)
+        End If
+        
+        oOpenAI.Log "Testing with model: " & IIf(oOpenAI.Model = Empty, "[None]", oOpenAI.Model)
+    
+        oMessages.AddSystemMessage "Every answer should only contain alphanumeric characters, and every letter should be capitalized"
+        oMessages.AddUserMessage "What is the capital of France?"
+    
+        Set oResponse = oOpenAI.ChatCompletion(oMessages)
+        
+        Debug.Assert Not oResponse Is Nothing
+        Debug.Assert Len(oResponse.MessageContent) > 0
+        Debug.Assert oResponse.MessageContent = "PARIS"
+        Debug.Assert oResponse.MessageRole = "assistant"
+        
+        oOpenAI.Log oMessages.GetAllMessages
+        oOpenAI.Log oResponse.MessageContent
+        oOpenAI.Log oResponse.MessageRole
+        
+        oOpenAI.Pause
+    
+    Next i
     
     '*********************************************
     '(2) Simple chat test with temperature change
     '*********************************************
 
-    oMessages.AddUserMessage "write a string of digits in order up to 9"
-    oOpenAI.Temperature = 0.9
+    oMessages.AddUserMessage "write a string of digits in order up to 9 starting with 1 and ending with 9"
     Set oResponse = oOpenAI.ChatCompletion(oMessages)
     
     Debug.Assert Not oResponse Is Nothing
     Debug.Assert Len(oResponse.MessageContent) > 0
     Debug.Assert oResponse.MessageContent = "123456789"
     Debug.Assert oResponse.MessageRole = "assistant"
+    
+    oOpenAI.Pause
     
     '*********************************************
     '(3) Change timeouts
@@ -126,6 +152,8 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
     Debug.Assert oResponse.MessageContent = "123456789"
     Debug.Assert oResponse.MessageRole = "assistant"
     
+    oOpenAI.Pause
+    
     '*********************************************
     '(4) Text completion test
     '*********************************************
@@ -134,6 +162,7 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
     
     'reset to default
     oOpenAI.ClearSettings
+    Debug.Assert oOpenAI.CallsToAPICount = 0
     
     strMsg = "Write a Haiku about a dinosaur that loves to code in VBA"
     Set oResponse = oOpenAI.TextCompletion(strMsg)
@@ -142,16 +171,25 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
     Debug.Assert Len(oResponse.TextContent) > 0
     oOpenAI.Log (oResponse.TextContent)
     
+    oOpenAI.Pause
+    
     '*********************************************
     '(5) Image creation from prompt test
     '*********************************************
     
     oOpenAI.ClearSettings
-    Set oResponse = oOpenAI.CreateImageFromText("A cat playing a banjo on a surfboard", 256, 256)
+    
+    strMsg = "A cat playing a banjo on a surfboard"
+    Set oResponse = oOpenAI.CreateImageFromText(strMsg, 256, 256)
     
     Debug.Assert Not oResponse Is Nothing
     Debug.Assert Len(oResponse.SavedLocalFile) > 0
     Debug.Assert Len(Dir(oResponse.SavedLocalFile)) > 0
+    Debug.Assert oResponse.IsExistSavedLocalFile = True
+    
+    oOpenAI.Log ("Prompt=" & strMsg)
+    oOpenAI.Log ("Image saved to: " & oResponse.SavedLocalFile)
+    oOpenAI.Pause
     
     Set oResponse = Nothing
     Set oMessages = Nothing

@@ -7,7 +7,7 @@ Attribute VB_Name = "mdOpenAI_Examples"
 ' Author: Zaid Qureshi
 ' GitHub: https://github.com/zq99
 '
-' Modules in the Framework:
+' Classes / Modules in the Framework:
 ' - clsOpenAI
 ' - clsOpenAILogger
 ' - clsOpenAIMessage

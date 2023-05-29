@@ -106,6 +106,10 @@ Public Property Let Temperature(ByVal value As Double)
     mdblTemperature = value
 End Property
 
+Public Property Get Temperature() As Double
+    Temperature = mdblTemperature
+End Property
+
 Public Property Let FrequencyPenalty(ByVal value As Double)
     mdblFrequencyPenalty = value
 End Property

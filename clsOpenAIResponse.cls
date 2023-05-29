@@ -128,23 +128,26 @@ Public Property Let SavedLocalFile(ByVal value As String)
     mstrSavedFile = value
 End Property
 
+Public Function IsExistSavedLocalFile() As Boolean
+    IsExistSavedLocalFile = IIf(Len(Dir(mstrSavedFile)) > 0, True, False)
+End Function
 
 Private Sub Class_Initialize()
 ' Initialize the variables
-    mstrId = ""
-    mstrObject = ""
+    mstrId = Empty
+    mstrObject = Empty
     mstrCreated = 0
-    mstrModel = ""
+    mstrModel = Empty
     mintPromptTokens = 0
     mintCompletionTokens = 0
     mintTotalTokens = 0
-    mstrMessageRole = ""
-    mstrMessageContent = ""
-    mstrFinishReason = ""
+    mstrMessageRole = Empty
+    mstrMessageContent = Empty
+    mstrFinishReason = Empty
     mintIndex = 0
-    mstrText = ""
-    mstrLogprobs = ""
-    mstrSavedFile = ""
+    mstrText = Empty
+    mstrLogprobs = Empty
+    mstrSavedFile = Empty
 End Sub
 
 

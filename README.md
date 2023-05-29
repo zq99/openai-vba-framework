@@ -155,6 +155,8 @@ For coding issues, use the following line, to go through the code.
 oOpenAI.IsLogOutputRequired True
 ```
 
+The entire framework can be tested for breaking changes using the mdTest_OpenAI module. Simply run the proceedure "RunAllTests".
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 

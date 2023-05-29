@@ -34,12 +34,19 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
+#If VBA7 Then
+    Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As LongPtr)
+#Else
+    Private Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+#End If
+
 Implements IOpenAINameProvider
 
 Private mstrAPI_KEY As String
 Private mobjHttpRequest As Object
 Private mobjLogger As clsOpenAILogger
 Private mobjRequest As clsOpenAIRequest
+Private mlngCallsToAPICount As Long
 
 'OpenAI API Endpoints
 Private Const API_ENDPOINT_CHAT As String = "https://api.openai.com/v1/chat/completions"
@@ -113,6 +120,14 @@ Public Property Let Model(ByVal value As String)
      mobjRequest.Model = value
 End Property
 
+Public Property Get Model() As String
+     Model = mobjRequest.Model
+End Property
+
+Public Property Get CallsToAPICount() As Long
+    CallsToAPICount = mlngCallsToAPICount
+End Property
+
 Public Property Let MaxTokens(ByVal value As Long)
     mobjRequest.MaxTokens = value
 End Property
@@ -126,6 +141,10 @@ Public Property Let Temperature(ByVal value As Double)
         Call mobjLogger.PrintCriticalMessage("Temperature setting must be between 0 and 1!", blnAddModuleName:=False)
     End If
     mobjRequest.Temperature = value
+End Property
+
+Public Property Get Temperature() As Double
+    Temperature = mobjRequest.Temperature
 End Property
 
 Public Property Let FrequencyPenalty(ByVal value As Double)
@@ -144,6 +163,10 @@ Public Property Get FolderToSaveTo() As String
     FolderToSaveTo = mstrFolderToSave
 End Property
 
+Public Sub Pause(Optional ByVal lngMilliSeconds As Long = 1000)
+    mobjLogger.PrintMessage ("Pausing for " & CStr(lngMilliSeconds) & " milliseconds")
+    Sleep lngMilliSeconds
+End Sub
 
 Public Sub IsLogOutputRequired(ByVal value As Boolean)
 'Purpose: Calling routines can switch off messages in this framework from appearing in the Immediate window
@@ -199,6 +222,8 @@ On Error GoTo ERR_HANDLER:
 
     If mobjHttpRequest.Status = HTTP_STATUS_OK Then
     
+        mlngCallsToAPICount = mlngCallsToAPICount + 1
+    
         'get the json result from the successful request
         strResponseJson = Trim(mobjHttpRequest.ResponseText)
         Log strResponseJson
@@ -239,6 +264,8 @@ End Function
 
 
 Private Function GetResponseObjectForImageParse(ByVal strResponseJson As String)
+'Purpose: this takes the response Json from the OpenAI api, and saves the information as a picture
+'         on the local PC, it then returns a response object with a reference to the picture created
     
     Set GetResponseObjectForImageParse = Nothing
     
@@ -368,6 +395,7 @@ Private Sub Class_Initialize()
     mobjLogger.SetClass Me
     
     mstrFolderToSave = DEFAULT_LOCAL_LOCATION
+    mlngCallsToAPICount = 0
     
     mstrAPI_KEY = Empty
 
@@ -402,6 +430,7 @@ Private Function GetDefaultRequestSettings() As clsOpenAIRequest
         .TimeoutSend = 60000
     End With
     Set GetDefaultRequestSettings = oRequest
+    mlngCallsToAPICount = 0
     
     Set oRequest = Nothing
 End Function
