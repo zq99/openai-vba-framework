@@ -263,7 +263,7 @@ ERR_HANDLER:
 End Function
 
 
-Private Function GetResponseObjectForImageParse(ByVal strResponseJson As String)
+Private Function GetResponseObjectForImageParse(ByVal strResponseJson As String) As clsOpenAIResponse
 'Purpose: this takes the response Json from the OpenAI api, and saves the information as a picture
 '         on the local PC, it then returns a response object with a reference to the picture created
     

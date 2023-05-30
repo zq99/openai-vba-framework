@@ -121,8 +121,8 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
         oOpenAI.Log oResponse.MessageContent
         oOpenAI.Log oResponse.MessageRole
         
-        oOpenAI.Pause
-    
+        oOpenAI.Pause 5000
+        
     Next i
     
     '*********************************************
@@ -137,13 +137,13 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
     Debug.Assert oResponse.MessageContent = "123456789"
     Debug.Assert oResponse.MessageRole = "assistant"
     
-    oOpenAI.Pause
+    oOpenAI.Pause 5000
     
     '*********************************************
     '(3) Change timeouts
     '*********************************************
 
-    oMessages.AddUserMessage "write a string of digits in order up to 9"
+    oMessages.AddUserMessage "write a string of digits in order up to 9 starting with 1 and ending with 9"
     oOpenAI.SetTimeOutDefaults 5000, 5000, 5000, 5000
     Set oResponse = oOpenAI.ChatCompletion(oMessages)
     
@@ -152,7 +152,7 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
     Debug.Assert oResponse.MessageContent = "123456789"
     Debug.Assert oResponse.MessageRole = "assistant"
     
-    oOpenAI.Pause
+    oOpenAI.Pause 5000
     
     '*********************************************
     '(4) Text completion test
@@ -171,7 +171,7 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
     Debug.Assert Len(oResponse.TextContent) > 0
     oOpenAI.Log (oResponse.TextContent)
     
-    oOpenAI.Pause
+    oOpenAI.Pause 5000
     
     '*********************************************
     '(5) Image creation from prompt test
@@ -189,7 +189,7 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
     
     oOpenAI.Log ("Prompt=" & strMsg)
     oOpenAI.Log ("Image saved to: " & oResponse.SavedLocalFile)
-    oOpenAI.Pause
+    oOpenAI.Pause 5000
     
     Set oResponse = Nothing
     Set oMessages = Nothing
