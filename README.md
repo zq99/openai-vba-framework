@@ -4,6 +4,9 @@
 
 OpenAI-VBA-Framework is an independent toolkit for developers to build VBA applications with OpenAI's language models like GPT-4, ChatGPT, and DALL-E. It offers a suite of classes for easy integration with OpenAI's API. Please note, this project is not officially associated with or endorsed by OpenAI.
 
+## Prerequisites
+- You will need to sign up for an OpenAI account and create an API_KEY. You can do this at the following location: [OpenAI API Keys](https://platform.openai.com/account/api-keys)
+  
 ## Main Classes
 1. `clsOpenAI` - Main class to interact with OpenAI
 2. `clsOpenAILogger` - Logging class for debugging and tracking
@@ -16,21 +19,6 @@ OpenAI-VBA-Framework is an independent toolkit for developers to build VBA appli
 The module `mdOpenAI_tests` is provided for testing the functionality of the framework.
 
 `OpenAIFrameworkDemo.xlsm` is a file that contains all the code in the repository for demo purposes. Other files are also included in the repository for versioning.
-
-## Prerequisites
-- You will need to sign up for an OpenAI account and create an API_KEY. You can do this at the following location: [OpenAI API Keys](https://platform.openai.com/account/api-keys)
-
-## Installation
-1. Clone this repository using the following command in your command line:
-
-```bash
-git clone https://github.com/zq99/OpenAI-VBA-Framework.git
-```
-
-2. Open Excel and press ALT + F11 to open the VBA editor.
-3. From the toolbar select File -> Import File....
-4. Navigate to the location of the cloned repository and select all the .cls and .bas files then click Open.
-5. Save the Excel file as a macro-enabled workbook .xlsm.
 
 ## Usage
 
@@ -146,6 +134,18 @@ Dim apiKey As String
 apiKey = oOpenAI.GetReadAPIKeyFromFolder("<FolderPath>")
 ```
 
+## Installation (via GIT)
+1. Clone this repository using the following command in your command line:
+
+```bash
+git clone https://github.com/zq99/OpenAI-VBA-Framework.git
+```
+
+2. Open Excel and press ALT + F11 to open the VBA editor.
+3. From the toolbar select File -> Import File....
+4. Navigate to the location of the cloned repository and select all the .cls and .bas files then click Open.
+5. Save the Excel file as a macro-enabled workbook .xlsm.
+   
 ## Troubleshooting
 
 You can check the status of the OpenAI API [here](https://status.openai.com/).
