@@ -454,14 +454,20 @@ Public Sub ClearSettings()
 End Sub
 
 
-Public Function GetReadAPIKeyFromFolder(ByVal strfolderPath As String) As String
+Public Function GetReadAPIKeyFromFolder(ByVal strfolderPath As String, Optional ByVal strDefaultTextFileName As String = "apikey") As String
 'Purpose: Allows retrieval of an API KEY saved in an external file (possibly stored on a drive only the current user can access)
 
     Dim intFileNumber As Integer
     Dim strAPIKey As String
     Dim strFilePath As String
 
-    strFilePath = strfolderPath & "\apikey.txt" ' Construct the full file path
+    strFilePath = strfolderPath & "\" & strDefaultTextFileName & ".txt" ' Construct the full file path
+    
+    'check file exists
+    If Dir(strFilePath) = "" Then
+        GetReadAPIKeyFromFolder = Empty
+        Exit Function
+    End If
 
     intFileNumber = FreeFile ' Get the first available file number
 
