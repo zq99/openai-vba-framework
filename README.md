@@ -52,30 +52,6 @@ Public Sub TestSimpleOpenAI()
 End Sub
 ```
 
-### Text Completion API
-
-```
-Public Sub TestTextCompletionSimpleOpenAI()
-
-    Dim oOpenAI As clsOpenAI
-    Dim oResponse As clsOpenAIResponse
-    
-    Set oOpenAI = New clsOpenAI
-    
-    oOpenAI.API_KEY = "<API_KEY>"
-
-    Set oResponse = oOpenAI.TextCompletion("Write a Haiku about a dinosaur that loves to code!")
-    
-    If Not oResponse Is Nothing Then
-        Debug.Print (oResponse.TextContent)
-    End If
-    
-    Set oResponse = Nothing
-    Set oOpenAI = Nothing
-
-End Sub
-```
-
 ### DALL-E Image Creation
 
 ```

@@ -60,8 +60,8 @@ Private Sub Class_Terminate()
     Set mobjClass = Nothing
 End Sub
 
-Public Sub SetClass(ByVal Obj As IOpenAINameProvider)
-    Set mobjClass = Obj
+Public Sub SetClass(ByVal obj As IOpenAINameProvider)
+    Set mobjClass = obj
 End Sub
 
 

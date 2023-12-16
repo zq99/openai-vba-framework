@@ -50,7 +50,6 @@ Private mlngCallsToAPICount As Long
 
 'OpenAI API Endpoints
 Private Const API_ENDPOINT_CHAT As String = "https://api.openai.com/v1/chat/completions"
-Private Const API_ENDPOINT_COMPLETIONS As String = "https://api.openai.com/v1/completions"
 Private Const API_ENDPOINT_IMAGE_CREATION As String = "https://api.openai.com/v1/images/generations"
 
 Private Const DEFAULT_LOCAL_LOCATION As String = "C:\Users\Public\Downloads\"
@@ -58,10 +57,7 @@ Private mstrFolderToSave As String
 
 'More models can be found here: https://platform.openai.com/docs/models/overview
 Private Const DEFAULT_CHAT_MODEL As String = "gpt-3.5-turbo"
-Private Const DEFAULT_TEXT_COMPLETION_MODEL As String = "text-davinci-003"
-
 Private Const DEFAULT_CHAT_TOKENS_COUNT As Integer = 512
-Private Const DEFAULT_TEXT_TOKENS_COUNT As Integer = 1024
 
 'Project constants
 Private Const UNASSIGNED_VALUE As Integer = -1
@@ -236,13 +232,6 @@ On Error GoTo ERR_HANDLER:
             oResponse.ParseChatJSON (strResponseJson)
             Set GetResponseFromAPI = oResponse
         
-        ElseIf strEndPoint = API_ENDPOINT_COMPLETIONS Then
-            
-            'GPT3 and earlier
-            Set oResponse = New clsOpenAIResponse
-            oResponse.ParseTextCompletionJSON (strResponseJson)
-            Set GetResponseFromAPI = oResponse
-        
         ElseIf strEndPoint = API_ENDPOINT_IMAGE_CREATION Then
         
             'DALL-E image generator
@@ -351,37 +340,6 @@ Public Function ChatCompletion(ByVal oMessages As clsOpenAIMessages) As clsOpenA
     
     Set ChatCompletion = GetResponseFromAPI(mobjRequest.GetChatSendToAPIJsonString, API_ENDPOINT_CHAT)
     
-End Function
-
-
-Public Function TextCompletion(ByVal strPrompt As String) As clsOpenAIResponse
-'Purpose: This is for OpenAI's Text Completion API
-
-    Set TextCompletion = Nothing
-
-    If Not IsAPIKeyValid Then
-        mobjLogger.PrintCriticalMessage MESSAGE_INVALID_API_KEY, True
-        Exit Function
-    End If
-    
-    If strPrompt = Empty Then
-        Exit Function
-    End If
-    
-    mobjRequest.prompt = strPrompt
-    
-    If mobjRequest.Model = Empty Then
-        mobjRequest.Model = DEFAULT_TEXT_COMPLETION_MODEL
-    End If
-    
-    If mobjRequest.MaxTokens = UNASSIGNED_VALUE Then
-        mobjRequest.MaxTokens = DEFAULT_TEXT_TOKENS_COUNT
-    End If
-    
-    Log mobjRequest.GetTextCompletionSendToAPIJsonString
-    
-    Set TextCompletion = GetResponseFromAPI(mobjRequest.GetTextCompletionSendToAPIJsonString, API_ENDPOINT_COMPLETIONS)
-
 End Function
 
 

@@ -50,7 +50,7 @@ Private mintIndex As Integer
 Private mstrText As String
 Private mstrLogprobs As String
 Private mstrSavedFile As String
-
+Private mstrJson As String
 
 Private Function IOpenAINameProvider_GetClassName() As String
     IOpenAINameProvider_GetClassName = "clsOpenAIResponse"
@@ -67,6 +67,10 @@ Private Function IOpenAINameProvider_ToString() As String
 
 End Function
 
+
+Public Property Get Json() As String
+    Json = mstrJson
+End Property
 
 Public Property Get Id() As String
     Id = mstrId
@@ -132,8 +136,10 @@ Public Function IsExistSavedLocalFile() As Boolean
     IsExistSavedLocalFile = IIf(Len(Dir(mstrSavedFile)) > 0, True, False)
 End Function
 
+
 Private Sub Class_Initialize()
 ' Initialize the variables
+    mstrJson = Empty
     mstrId = Empty
     mstrObject = Empty
     mstrCreated = 0
@@ -152,183 +158,49 @@ End Sub
 
 
 Public Sub ParseChatJSON(ByVal strJson As String)
-'Purpose: This method is for parsing OpenAI's strJson response from it's Chat End point
+    ' Purpose: This method is for parsing OpenAI's strJson response from its Chat Endpoint
 
-    Dim intStartPos As Integer
-    Dim intEndPos As Integer
-    Dim strTemp As String
-    
-    ' Extract "id"
-    If InStr(1, strJson, """id"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """id"":""") + Len("""id"":""")
-        intEndPos = InStr(intStartPos, strJson, """")
-        mstrId = Trim(Mid(strJson, intStartPos, intEndPos - intStartPos))
-    End If
-    
-    ' Extract "object"
-    If InStr(1, strJson, """object"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """object"":""") + Len("""object"":""")
-        intEndPos = InStr(intStartPos, strJson, """")
-        mstrObject = Trim(Mid(strJson, intStartPos, intEndPos - intStartPos))
-    End If
-    
-    ' Extract "created"
-    If InStr(1, strJson, """created"":") > 0 Then
-        intStartPos = InStr(1, strJson, """created"":") + Len("""created"":")
-        intEndPos = InStr(intStartPos, strJson, ",")
-        mstrCreated = CLng(Trim(Mid(strJson, intStartPos, intEndPos - intStartPos)))
-    End If
-    
-    ' Extract "model"
-    If InStr(1, strJson, """model"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """model"":""") + Len("""model"":""")
-        intEndPos = InStr(intStartPos, strJson, """")
-        mstrModel = Trim(Mid(strJson, intStartPos, intEndPos - intStartPos))
-    End If
-    
-    ' Extract "prompt_tokens"
-    If InStr(1, strJson, """prompt_tokens"":") > 0 Then
-        intStartPos = InStr(1, strJson, """prompt_tokens"":") + Len("""prompt_tokens"":")
-        intEndPos = InStr(intStartPos, strJson, ",")
-        mintPromptTokens = CInt(Trim(Mid(strJson, intStartPos, intEndPos - intStartPos)))
-    End If
-    
-    ' Extract "completion_tokens"
-    If InStr(1, strJson, """completion_tokens"":") > 0 Then
-        intStartPos = InStr(1, strJson, """completion_tokens"":") + Len("""completion_tokens"":")
-        intEndPos = InStr(intStartPos, strJson, ",")
-        mintCompletionTokens = CInt(Trim(Mid(strJson, intStartPos, intEndPos - intStartPos)))
-    End If
-    
-    ' Extract "total_tokens"
-    If InStr(1, strJson, """total_tokens"":") > 0 Then
-        intStartPos = InStr(1, strJson, """total_tokens"":") + Len("""total_tokens"":")
-        intEndPos = InStr(intStartPos, strJson, "}")
-        mintTotalTokens = CInt(Trim(Mid(strJson, intStartPos, intEndPos - intStartPos)))
-    End If
-    
-    ' Extract "message_role"
-    If InStr(1, strJson, """role"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """role"":""") + Len("""role"":""")
-        intEndPos = InStr(intStartPos, strJson, """")
-        mstrMessageRole = Trim(Mid(strJson, intStartPos, intEndPos - intStartPos))
-    End If
-    
-    ' Extract "message_content"
-    If InStr(1, strJson, """content"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """content"":""") + Len("""content"":""")
-        intEndPos = InStr(intStartPos, strJson, """},") ' end position is now before "}," sequence
-        strTemp = Mid(strJson, intStartPos, intEndPos - intStartPos)
-        strTemp = Replace(strTemp, "\""", """") ' Replace escaped quotes with actual quotes
-        mstrMessageContent = Trim(strTemp)
-    End If
+    'Allow for the full response to be accessed by downstream clients using the class
+    mstrJson = strJson
 
+    ' Extract each property from the JSON string
+    mstrId = ExtractJsonValue(strJson, """id"": """, """")
+    mstrObject = ExtractJsonValue(strJson, """object"": """, """")
+    mstrCreated = CLng(ExtractJsonValue(strJson, """created"": ", ","))
+    mstrModel = ExtractJsonValue(strJson, """model"": """, """")
+    mintPromptTokens = CInt(ExtractJsonValue(strJson, """prompt_tokens"": ", ","))
+    mintCompletionTokens = CInt(ExtractJsonValue(strJson, """completion_tokens"": ", ","))
+    mintTotalTokens = CInt(ExtractJsonValue(strJson, """total_tokens"": ", "}"))
     
-    ' Extract "finish_reason"
-    If InStr(1, strJson, """finish_reason"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """finish_reason"":""") + Len("""finish_reason"":""")
-        intEndPos = InStr(intStartPos, strJson, """")
-        mstrFinishReason = Trim(Mid(strJson, intStartPos, intEndPos - intStartPos))
-    End If
-    
-    ' Extract "index"
-    If InStr(1, strJson, """index"":") > 0 Then
-        intStartPos = InStr(1, strJson, """index"":") + Len("""index"":")
-        intEndPos = InStr(intStartPos, strJson, "}")
-        mintIndex = CInt(Trim(Mid(strJson, intStartPos, intEndPos - intStartPos)))
-    End If
+    ' Extract the nested message information
+    Dim messageJson As String
+    messageJson = ExtractJsonValue(strJson, """message"": {", "}")
+    mstrMessageRole = ExtractJsonValue(messageJson, """role"": """, """")
+    mstrMessageContent = ExtractJsonValue(messageJson, """content"": """, """")
+    mstrMessageContent = Replace(mstrMessageContent, "\""", """") ' Replace escaped quotes with actual quotes
+    mstrFinishReason = ExtractJsonValue(strJson, """finish_reason"": """, """")
+    mintIndex = CInt(ExtractJsonValue(strJson, """index"": ", ","))
+
 End Sub
 
 
-Public Sub ParseTextCompletionJSON(ByVal strJson As String)
-'Purpose: This method is for parsing OpenAI's strJson from it's text completion end point
+Private Function ExtractJsonValue(ByVal Json As String, ByVal key As String, ByVal delimiter As String) As String
+    ' Find the start position of the key
+    Dim startPos As Integer
+    startPos = InStr(Json, key)
+    If startPos = 0 Then Exit Function
 
-    Dim intStartPos As Integer
-    Dim intEndPos As Integer
-    Dim strTemp As String
-    
-    ' Extract "id"
-    If InStr(1, strJson, """id"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """id"":""") + Len("""id"":""")
-        intEndPos = InStr(intStartPos, strJson, """")
-        mstrId = Trim(Mid(strJson, intStartPos, intEndPos - intStartPos))
-    End If
-    
-    ' Extract "object"
-    If InStr(1, strJson, """object"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """object"":""") + Len("""object"":""")
-        intEndPos = InStr(intStartPos, strJson, """")
-        mstrObject = Trim(Mid(strJson, intStartPos, intEndPos - intStartPos))
-    End If
-    
-    ' Extract "created"
-    If InStr(1, strJson, """created"":") > 0 Then
-        intStartPos = InStr(1, strJson, """created"":") + Len("""created"":")
-        intEndPos = InStr(intStartPos, strJson, ",")
-        mstrCreated = CLng(Trim(Mid(strJson, intStartPos, intEndPos - intStartPos)))
-    End If
-    
-    ' Extract "model"
-    If InStr(1, strJson, """model"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """model"":""") + Len("""model"":""")
-        intEndPos = InStr(intStartPos, strJson, """")
-        mstrModel = Trim(Mid(strJson, intStartPos, intEndPos - intStartPos))
-    End If
-    
-    ' Extract "prompt_tokens"
-    If InStr(1, strJson, """prompt_tokens"":") > 0 Then
-        intStartPos = InStr(1, strJson, """prompt_tokens"":") + Len("""prompt_tokens"":")
-        intEndPos = InStr(intStartPos, strJson, ",")
-        mintPromptTokens = CInt(Trim(Mid(strJson, intStartPos, intEndPos - intStartPos)))
-    End If
-    
-    ' Extract "completion_tokens"
-    If InStr(1, strJson, """completion_tokens"":") > 0 Then
-        intStartPos = InStr(1, strJson, """completion_tokens"":") + Len("""completion_tokens"":")
-        intEndPos = InStr(intStartPos, strJson, ",")
-        mintCompletionTokens = CInt(Trim(Mid(strJson, intStartPos, intEndPos - intStartPos)))
-    End If
-    
-    ' Extract "total_tokens"
-    If InStr(1, strJson, """total_tokens"":") > 0 Then
-        intStartPos = InStr(1, strJson, """total_tokens"":") + Len("""total_tokens"":")
-        intEndPos = InStr(intStartPos, strJson, "}")
-        mintTotalTokens = CInt(Trim(Mid(strJson, intStartPos, intEndPos - intStartPos)))
-    End If
-    
-        ' Extract "text"
-    If InStr(1, strJson, """text"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """text"":""") + Len("""text"":""")
-        intEndPos = InStr(intStartPos, strJson, """,""") ' end position is now before the sequence ","
-        strTemp = Mid(strJson, intStartPos, intEndPos - intStartPos)
-        strTemp = Replace(strTemp, "\""", """") ' Replace escaped quotes with actual quotes
-        mstrText = Trim(strTemp)
-    End If
-    
-    ' Extract "logprobs"
-    If InStr(1, strJson, """logprobs"":") > 0 Then
-        intStartPos = InStr(1, strJson, """logprobs"":") + Len("""logprobs"":")
-        intEndPos = InStr(intStartPos, strJson, ",") ' end position is now before the sequence ","
-        strTemp = Mid(strJson, intStartPos, intEndPos - intStartPos)
-        strTemp = Replace(strTemp, "\""", """") ' Replace escaped quotes with actual quotes
-        mstrLogprobs = Trim(strTemp)
-    End If
+    ' Adjust start position to start of the value
+    startPos = startPos + Len(key)
 
-    
-    ' Extract "finish_reason"
-    If InStr(1, strJson, """finish_reason"":""") > 0 Then
-        intStartPos = InStr(1, strJson, """finish_reason"":""") + Len("""finish_reason"":""")
-        intEndPos = InStr(intStartPos, strJson, """")
-        mstrFinishReason = Trim(Mid(strJson, intStartPos, intEndPos - intStartPos))
-    End If
-    
-    ' Extract "index"
-    If InStr(1, strJson, """index"":") > 0 Then
-        intStartPos = InStr(1, strJson, """index"":") + Len("""index"":")
-        intEndPos = InStr(intStartPos, strJson, ",")
-        mintIndex = CInt(Trim(Mid(strJson, intStartPos, intEndPos - intStartPos)))
-    End If
-End Sub
+    ' Find the end position of the value
+    Dim endPos As Integer
+    endPos = InStr(startPos, Json, delimiter)
+    If endPos = 0 Then Exit Function
+
+    ' Extract the value
+    ExtractJsonValue = Mid(Json, startPos, endPos - startPos)
+End Function
 
 
 Public Function GetFileNameFromImageURL(ByVal strImageUrl As String)
@@ -380,6 +252,4 @@ Public Function GetImageURLFromImageCreationJSON(ByVal strResponseJson As String
     End If
     
 End Function
-
-
 

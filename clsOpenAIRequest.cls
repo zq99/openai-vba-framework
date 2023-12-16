@@ -60,7 +60,7 @@ End Function
 
 
 Private Function IOpenAINameProvider_ToString() As String
-    IOpenAINameProvider_ToString = "chat json=" & Me.GetChatSendToAPIJsonString & " | " & "text json=" & Me.GetTextCompletionSendToAPIJsonString
+    IOpenAINameProvider_ToString = "chat json=" & Me.GetChatSendToAPIJsonString
 End Function
 
 
@@ -169,11 +169,6 @@ End Property
 
 Public Function GetChatSendToAPIJsonString() As String
     GetChatSendToAPIJsonString = "{""model"": """ & mstrModel & """, " & mobjMessages.GetAllMessages & ", ""max_tokens"": " & mlngMaxTokens & ", ""top_p"": " & mdblTopP & ", ""temperature"": " & mdblTemperature & ", ""frequency_penalty"": " & mdblFrequencyPenalty & ", ""presence_penalty"": " & mdlPresencePenalty & "}"
-End Function
-
-
-Public Function GetTextCompletionSendToAPIJsonString() As String
-    GetTextCompletionSendToAPIJsonString = "{""model"": """ & mstrModel & """, ""prompt"": """ & mstrPrompt & """, ""max_tokens"": " & mlngMaxTokens & ", ""temperature"": " & mdblTemperature & "}"
 End Function
 
 

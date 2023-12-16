@@ -42,6 +42,7 @@ Public Sub RunAllTests()
     
     oOpenAI.IsLogOutputRequired True
     oOpenAI.API_KEY = API_KEY
+    oOpenAI.Log "Starting to run all tests"
     
     Debug.Assert oOpenAI.API_KEY = API_KEY
     Debug.Assert oOpenAI.CallsToAPICount = 0
@@ -62,6 +63,11 @@ Public Sub RunAllTests()
     Next i
     
     Debug.Assert oOpenAI.CallsToAPICount > 0
+    
+    'Test for function which can be used as UDF in Excel
+    Call Test_GETTEXTFROMOPENAI
+    
+    oOpenAI.Log "Completed run of all tests"
     Set oOpenAI = Nothing
 
 End Sub
@@ -71,6 +77,7 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
 
     Dim oMessages As New clsOpenAIMessages
     Dim oResponse As clsOpenAIResponse
+    Dim strMsg As String
         
     If strRequestXMLType <> Empty Then
         oOpenAI.MSXMLType = strRequestXMLType
@@ -154,27 +161,9 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
     
     oOpenAI.Pause 5000
     
-    '*********************************************
-    '(4) Text completion test
-    '*********************************************
-    
-    Dim strMsg As String
-    
-    'reset to default
-    oOpenAI.ClearSettings
-    Debug.Assert oOpenAI.CallsToAPICount = 0
-    
-    strMsg = "Write a Haiku about a dinosaur that loves to code in VBA"
-    Set oResponse = oOpenAI.TextCompletion(strMsg)
-    
-    Debug.Assert Not oResponse Is Nothing
-    Debug.Assert Len(oResponse.TextContent) > 0
-    oOpenAI.Log (oResponse.TextContent)
-    
-    oOpenAI.Pause 5000
     
     '*********************************************
-    '(5) Image creation from prompt test
+    '(4) Image creation from prompt test
     '*********************************************
     
     oOpenAI.ClearSettings
@@ -190,8 +179,38 @@ Private Sub TestOpenAI(ByVal oOpenAI As clsOpenAI, Optional ByVal strRequestXMLT
     oOpenAI.Log ("Prompt=" & strMsg)
     oOpenAI.Log ("Image saved to: " & oResponse.SavedLocalFile)
     oOpenAI.Pause 5000
+
+    '*********************************************
+    ' Tidy up
+    '*********************************************
     
     Set oResponse = Nothing
     Set oMessages = Nothing
 
 End Sub
+
+
+Private Sub Test_GETTEXTFROMOPENAI()
+    Dim strPrompt As String
+    Dim strAPIKey As String
+    Dim strModel As String
+    Dim strResult As String
+
+    ' Example values for testing
+    strPrompt = "Hello, world!"
+    strAPIKey = API_KEY
+    strModel = "gpt-3.5-turbo" '"gpt-4" ' You can use a specific model if needed
+
+    ' Call the function
+    strResult = GETTEXTFROMOPENAI(strPrompt, strAPIKey, strModel)
+    
+    Debug.Assert Len(strResult) > 0
+
+    ' Check if the result is as expected
+    If strResult <> Empty Then
+        Debug.Print "GETTEXTFROMOPENAI Test passed, received response: " & strResult
+    Else
+        Debug.Print "GETTEXTFROMOPENAI Test failed, no response received."
+    End If
+End Sub
+

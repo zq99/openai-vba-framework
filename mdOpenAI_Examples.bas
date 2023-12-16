@@ -95,88 +95,36 @@ Public Sub TestChatOpenAI()
 End Sub
 
 
-Public Sub TestTextCompletionOpenAI()
-
-    Dim oOpenAI As clsOpenAI
-    Dim oResponse As clsOpenAIResponse
-    Dim sMsg As String
-    
-    Set oOpenAI = New clsOpenAI
-    
-    oOpenAI.IsLogOutputRequired True
-    
-    oOpenAI.API_KEY = API_KEY
-
-    sMsg = "Write a Haiku about a dinosaur that loves to code!"
-    Set oResponse = oOpenAI.TextCompletion(sMsg)
-    
-    If Not oResponse Is Nothing Then
-        Debug.Print (oResponse.Id)
-        Debug.Print (oResponse.Object)
-        Debug.Print (oResponse.Created)
-        Debug.Print (oResponse.Model)
-        Debug.Print (oResponse.FinishReason)
-        Debug.Print (oResponse.TextContent)
-        Debug.Print (oResponse.LogProbs)
-        Debug.Print (oResponse.CompletionTokens)
-        Debug.Print (oResponse.PromptTokens)
-        Debug.Print (oResponse.TotalTokens)
-        Debug.Print (oResponse.Index)
-    End If
-    
-    Set oResponse = Nothing
-    Set oOpenAI = Nothing
-
-End Sub
-
-
-Public Sub TestTextCompletionSimpleOpenAI()
-
-    Dim oOpenAI As clsOpenAI
-    Dim oResponse As clsOpenAIResponse
-    
-    Set oOpenAI = New clsOpenAI
-    
-    oOpenAI.API_KEY = API_KEY
-
-    Set oResponse = oOpenAI.TextCompletion("Write a Haiku about a dinosaur that loves to code!")
-    
-    If Not oResponse Is Nothing Then
-        Debug.Print (oResponse.TextContent)
-    End If
-    
-    Set oResponse = Nothing
-    Set oOpenAI = Nothing
-
-End Sub
-
-
 Public Function GETTEXTFROMOPENAI(ByVal strPrompt As String, ByVal strAPIKey As String, _
                                     Optional ByVal strModel As String) As String
+    
+    'Purpose: This function is an example of how to create a UDF using the OpenAI API
+    '         so that it can be called directly on a worksheet in Excel
+    
     Dim oOpenAI As clsOpenAI
+    Dim oMessages As New clsOpenAIMessages
     Dim oResponse As clsOpenAIResponse
-
+    
+    GETTEXTFROMOPENAI = Empty
+    
     Set oOpenAI = New clsOpenAI
-
-    ' Set the API key directly from the function argument
-    oOpenAI.API_KEY = strAPIKey
+    
+    oOpenAI.API_KEY = API_KEY
     
     If Not IsEmpty(strModel) Then
         oOpenAI.Model = strModel
     End If
+    
+    oMessages.AddUserMessage strPrompt
 
-    ' Make the API request and get the response
-    Set oResponse = oOpenAI.TextCompletion(strPrompt)
-
-    ' Return the choice from the response, or an empty string if there was no response
+    Set oResponse = oOpenAI.ChatCompletion(oMessages)
     If Not oResponse Is Nothing Then
-        GETTEXTFROMOPENAI = oResponse.TextContent
-    Else
-        GETTEXTFROMOPENAI = ""
+        GETTEXTFROMOPENAI = oResponse.MessageContent
     End If
     
     Set oResponse = Nothing
     Set oOpenAI = Nothing
+    Set oMessages = Nothing
 End Function
 
 
