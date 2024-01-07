@@ -42,7 +42,7 @@ Private mlngMaxTokens As Long
 Private mdblTopP As Double
 Private mdblTemperature As Double
 Private mdblFrequencyPenalty As Double
-Private mdlPresencePenalty As Double
+Private mdblPresencePenalty As Double
 Private mstrPrompt As String
 Private mlngImageWidth As Long
 Private mlngImageHeight As Long
@@ -115,7 +115,7 @@ Public Property Let FrequencyPenalty(ByVal value As Double)
 End Property
 
 Public Property Let PresencePenalty(ByVal value As Double)
-    mdlPresencePenalty = value
+    mdblPresencePenalty = value
 End Property
 
 Public Property Get ImageHeight() As Long
@@ -168,7 +168,7 @@ End Property
 
 
 Public Function GetChatSendToAPIJsonString() As String
-    GetChatSendToAPIJsonString = "{""model"": """ & mstrModel & """, " & mobjMessages.GetAllMessages & ", ""max_tokens"": " & mlngMaxTokens & ", ""top_p"": " & mdblTopP & ", ""temperature"": " & mdblTemperature & ", ""frequency_penalty"": " & mdblFrequencyPenalty & ", ""presence_penalty"": " & mdlPresencePenalty & "}"
+    GetChatSendToAPIJsonString = "{""model"": """ & mstrModel & """, " & mobjMessages.GetAllMessages & ", ""max_tokens"": " & mlngMaxTokens & ", ""top_p"": " & DblToEnglishStr(mdblTopP) & ", ""temperature"": " & DblToEnglishStr(mdblTemperature) & ", ""frequency_penalty"": " & DblToEnglishStr(mdblFrequencyPenalty) & ", ""presence_penalty"": " & mdblPresencePenalty & "}"
 End Function
 
 
@@ -181,4 +181,19 @@ End Function
 
 Public Function GetImageDimensionLabel() As String
     GetImageDimensionLabel = Chr(34) & CStr(mlngImageWidth) & "x" & CStr(mlngImageHeight) & Chr(34)
+End Function
+
+
+Private Function DblToEnglishStr(dblNumber As Double) As String
+'Purpose: Normalize formatting of number with decimals to English format
+
+    ' Convert the double to string using system's regional settings
+    Dim strNumber As String
+    strNumber = CStr(dblNumber)
+
+    ' Replace comma with period if system uses comma as decimal separator (eg. Italian format)
+    strNumber = Replace(strNumber, ",", ".")
+    
+    ' Return the formatted string
+    DblToEnglishStr = strNumber
 End Function
