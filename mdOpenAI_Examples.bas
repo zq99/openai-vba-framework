@@ -109,7 +109,7 @@ Public Function GETTEXTFROMOPENAI(ByVal strPrompt As String, ByVal strAPIKey As 
     
     Set oOpenAI = New clsOpenAI
     
-    oOpenAI.API_KEY = API_KEY
+    oOpenAI.API_KEY = strAPIKey
     
     If Not IsEmpty(strModel) Then
         oOpenAI.Model = strModel
