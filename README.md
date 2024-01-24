@@ -126,6 +126,8 @@ git clone https://github.com/zq99/OpenAI-VBA-Framework.git
 
 You can check the status of the OpenAI API [here](https://status.openai.com/).
 
+You can get more information on HTTP status codes returned by the API [here](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes).
+
 For coding issues, use the following line, to go through the code.
 ```
 oOpenAI.IsLogOutputRequired True
